@@ -1,124 +1,50 @@
-# filters
+# rejection
 
-Filters API for designing and creating plugin system, within Laravel.
+Rejection is an object that indicates you are rejecting.
 
-> We used this in Blessing Skin Server.
-
-The "Filters API" is similar with Filters API of WordPress, but comes with different API.
-And this package is designed for Laravel, so it may not work if you use it without Laravel.
+> We used this in Blessing Skin Server for plugins.
 
 ## 💿 Install
 
 Run Composer:
 
 ```
-composer require blessing/filter
+composer require blessing/rejection
 ```
 
 ## 🔨 Usage
 
-With Laravel's Auto-Discovery, you don't need to configure your Laravel application manually.
-
-Currently this package doesn't provide Facade.
-You must get instance by using type-hint in your controllers or using global `resolve()` helper function.
-
-For example:
+### Create a rejection
 
 ```php
-use Blessing\Filter;
+use Blessing\Rejection;
 
-class MyController extends Controller
-{
-    public function home(Filter $filter)
-    {
-        //
-    }
-}
+$rejection = new Rejection('reason');
 ```
 
-### Add a filter
-
-To add a filter for a specified hook, just call the `add` method:
+You can pass optional second argument to constructor:
 
 ```php
-$filter->add('hook_name', function ($value) {
-    return $value;
-});
+$rejection = new Rejection('reason', ['name' => '']);
 ```
 
-Note that the filter handler must return a value; otherwise, the value after applied will be `null`.
-
-You also can pass a class which has a public method called `filter` as handler.
+### Retrieve reason
 
 ```php
-class MyFilter
-{
-    public function filter($value)
-    {
-        return $value;
-    }
-}
-
-$filter->add('hook_name', MyFilter::class);
-// or
-$filter->add('hook_name', 'MyFilter');
+$rejection->getReason();
 ```
 
-The class will be resolved from Laravel's service container,
-so you can use type-hint at the constructor of your class to resolve dependencies.
-
-Additionally, you can specify the priority for your filter handler.
-Higher integer value indicates that it should come with higher priority.
-
-Default priority is `20`.
+### Retrieve data:
 
 ```php
-$filter->add('hook_name', function ($value) {
-    return $value;
-}, 30);  // Higher than default priority.
+$rejection->getData();
 ```
 
-### Apply a hook
-
-You can call `apply` method to apply a hook:
+If your data is an array, you pass a key:
 
 ```php
-$value = $filter->apply('hook_name', 'hi');
-```
-
-Then, the second argument you passed will be manipulated by filters.
-
-Also, you can pass additional arguments as an array:
-
-```php
-$value = $filter->apply('hook_name', 'hi', [$arg1, $arg2]);
-```
-
-Those additional arguments **won't** be manipulated by filters.
-
-### Remove all filters
-
-To remove all filters for a specified hook, just:
-
-```php
-$filter->remove('hook_name');
-```
-
-### Totally...
-
-This is a full example:
-
-```php
-$filter->add('hook_name', function ($value, $arg1, $arg2) {
-    if ($arg1 === '...') {
-        return $value;
-    }
-
-    return $value.'!';
-});
-
-$value = $filter->apply('hook_name', 'hi', ['abc', 'def']);
-// You should get the text "hi!" here.
+$rejection = new Rejection('reason', ['name' => '']);
+$rejection->getData('name');
 ```
 
 ## 📄 License
